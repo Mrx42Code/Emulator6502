@@ -1370,8 +1370,8 @@ void MC_Processor6502::Disassemble(char* output, size_t outputsize, uint8_t* buf
 {
 	char opcode_repr[DebugSubLineLen], hex_dump[DebugSubLineLen];
 	int len = 0;
-	int entry = 0;
-	int found = 0;
+	uint8_t entry = 0;
+	bool found = false;
 	uint8_t byte_operand;
 	uint16_t word_operand = 0;
 	uint16_t current_addr = *pc;
@@ -1382,7 +1382,7 @@ void MC_Processor6502::Disassemble(char* output, size_t outputsize, uint8_t* buf
 	hex_dump[0] = '\0';
 	output[0] = '\0';
 	if (m_InstrTbl[opcode].Mnemonic != nullptr) {
-		found = 1;
+		found = true;
 		entry = opcode;
 	}
 	if (!found) {
