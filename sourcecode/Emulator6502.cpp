@@ -52,6 +52,7 @@ int main()
     mc_Hardware6502.Create();
     mc_Hardware6502.CpuLoop();
     mc_Hardware6502.Destroy();
+    mc_Hardware6502.PrintStatus(false, "App Ends");
     return 0;
 }
 

@@ -64,6 +64,7 @@ class MC_Hardware6502
 {
 
     public:
+        HANDLE              m_hConsole;
         bool                m_Quit;
         bool                m_Disassembler6502;
         bool                m_Cpu6502Run;
@@ -85,9 +86,13 @@ class MC_Hardware6502
         void				Initialize();
         void				Destroy();
         void				Create();
+        void                PrintStatus(bool Error, std::string Msg);
 
         void                CpuInitializeAndReset();
         void                CpuReset();
+        void                CpuStop();
+        void                CpuRun();
+        void                CpuStep();
         void                CpuLoop();
         void                CpuIRQ();
         void                CpuNMI();
