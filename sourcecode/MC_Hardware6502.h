@@ -37,6 +37,8 @@
 //-----------------------------------------------------------------------------
 // Const
 //-----------------------------------------------------------------------------
+#define BreakPointMemory                    true
+#define BreakPointOpCode                    true
 
 #define MemoryMapAddress					0x0000								// 0000-FFFF Cpu Memory Map
 #define MemoryMapSizeAddress				0x10000								// 64k
@@ -55,6 +57,12 @@
 //-----------------------------------------------------------------------------
 // Struct
 //-----------------------------------------------------------------------------
+typedef struct BreakPoint
+{
+    bool                SetFlag;
+    bool                Found;
+    uint16_t            Address;
+} _BreakPoint;
 
 //-----------------------------------------------------------------------------
 // Name: class MC_Hardware6502
@@ -69,8 +77,8 @@ class MC_Hardware6502
         bool                m_Disassembler6502;
         bool                m_Cpu6502Run;
         bool                m_Cpu6502Step;
-        bool                m_BreakPointFlag;
-        uint16_t            m_BreakPointAddress;
+        BreakPoint          m_BreakPointOpCode;
+        BreakPoint          m_BreakPointMemory;
         uint8_t             m_MemoryMap[MemoryMapSizeAddress];
         bool                m_MemoryWriteOverride;
 
@@ -93,13 +101,14 @@ class MC_Hardware6502
         void                CpuStop();
         void                CpuRun();
         void                CpuStep();
+        void                CpuSetParameters();
         void                CpuLoop();
         void                CpuIRQ();
         void                CpuNMI();
         void                CpuMemoryMapFullDump();
         void                CpuMemoryMapDump(uint16_t StartAddress, uint16_t EndAddress);
-        uint8_t             CpuMemoryMapRead(uint16_t address);
-        void                CpuMemoryMapWrite(uint16_t address, uint8_t value);
+        uint8_t             CpuMemoryMapRead(uint16_t& address);
+        void                CpuMemoryMapWrite(uint16_t& address, uint8_t& value);
 
     protected:
         void                MemoryInit();
@@ -109,6 +118,11 @@ class MC_Hardware6502
         void                MemoryLoadIntelFormat(uint16_t MemoryAddress, uint16_t MemorySize, std::string FileName);
         uint16_t            Hex2Dec(std::string StrHex);
         void                PrintHexDump16Bit(const char* desc, void* addr, long len, long offset);
+        bool                TestForBreakPointOpCode();
+        void                SetBreakPointOpCode(bool Enable, uint16_t Address);
+        void                TestForBreakPointMemory(uint16_t& address, uint8_t& data, bool ReadWrite);
+        void                SetBreakPointMemory(bool Enable, uint16_t Address);
+        void				SetPC(uint16_t PC);
 
     private:
 
