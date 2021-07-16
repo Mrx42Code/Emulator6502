@@ -346,7 +346,7 @@ void MC_Processor6502::RunCode(int32_t cyclesRemaining, uint64_t& cycleCount, Cy
 
 	while (cyclesRemaining > 0 && !m_registers.IllegalOpcode) {
 		m_Instruction.OpCode = MemoryRead(m_registers.pc++);					// fetch
-		m_Instruction.instr = m_InstrTbl[m_Instruction.OpCode];				// decode
+		m_Instruction.instr = m_InstrTbl[m_Instruction.OpCode];					// decode
 		Cycle = Exec(m_Instruction.instr);										// execute
 		cycleCount += Cycle;
 		cyclesRemaining -= cycleMethod == CycleMethod::CYCLE_COUNT ? Cycle : 1;	// cycleMethod == INST_COUNT

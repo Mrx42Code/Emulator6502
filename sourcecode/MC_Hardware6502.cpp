@@ -115,8 +115,7 @@ void MC_Hardware6502::PrintStatus(bool Error, std::string Msg)
     if (Error) {
         SetConsoleTextAttribute(m_hConsole, FOREGROUND_RED | FOREGROUND_INTENSITY);
         printf("[Error]");
-    }
-    else {
+    } else {
         SetConsoleTextAttribute(m_hConsole, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
         printf("[ Ok  ]");
     }
@@ -195,7 +194,7 @@ void MC_Hardware6502::CpuLoop()
 
     StatusMsg[0] = 0;
     m_BreakPointFlag = true;
-    m_BreakPointAddress = 0x3469;
+    m_BreakPointAddress = 0x3469;                                               // if you get here everything went well 3469 : 4c6934 > jmp*; test passed, no errors
     m_Disassembler6502 = false;
     m_Cpu6502Step = false;
     m_Cpu6502Run = true;
@@ -207,6 +206,7 @@ void MC_Hardware6502::CpuLoop()
             if (m_BreakPointFlag && m_BreakPointAddress == mc_Processor6502.GetPC()) {
                 m_Cpu6502Run = false;
                 m_Disassembler6502 = true;
+                PrintStatus(false, "If you get here everything went well [$3469  4C 6934  JMP $3469] test passed, no errors");
                 PrintStatus(false, "Cpu BreakPoint");
                 m_Quit = true;
             }
@@ -371,14 +371,14 @@ void MC_Hardware6502::MemoryLoad(uint16_t MemoryAddress, uint16_t MemorySize, st
         file.close();
         if (FileSize <= MemorySize && MemMapMaxSize <= 0x10000) {
             memcpy(&m_MemoryMap[MemoryAddress], memblock, FileSize);
-            snprintf(StatusMsg, sizeof(StatusMsg), "Load Rom Memory($%04X - $%04X) %s", MemoryAddress, MemoryAddress + (FileSize - 1), FileName.c_str());
+            snprintf(StatusMsg, sizeof(StatusMsg), "Load Ram/Rom ($%04X - $%04X) %s", MemoryAddress, MemoryAddress + (FileSize - 1), FileName.c_str());
         } else {
-            snprintf(StatusMsg, sizeof(StatusMsg), "Load Rom file to Big for Memory(%06X,%06X) Slot File %s", FileSize, MemMapMaxSize - 1, FileName.c_str());
+            snprintf(StatusMsg, sizeof(StatusMsg), "Load Ram/Rom file to Big for Memory(%06X,%06X) Slot File %s", FileSize, MemMapMaxSize - 1, FileName.c_str());
             Error = true;
         }
         delete[] memblock;
     } else {
-        snprintf(StatusMsg, sizeof(StatusMsg), "Load Rom Unable to open file %s", FileName.c_str());
+        snprintf(StatusMsg, sizeof(StatusMsg), "Load Ram/Rom  Unable to open file %s", FileName.c_str());
         Error = true;
     }
     PrintStatus(Error, StatusMsg);
@@ -403,9 +403,9 @@ void MC_Hardware6502::MemorySave(uint16_t MemoryAddress, uint16_t MemorySize, st
         file.write((char*)memblock, size);
         file.close();
         delete[] memblock;
-        snprintf(StatusMsg, sizeof(StatusMsg), "Save Memory/Rom ($%04X - $%04X) %s", MemoryAddress, MemoryAddress + (MemorySize - 1), FileName.c_str());
+        snprintf(StatusMsg, sizeof(StatusMsg), "Save Ram/Rom ($%04X - $%04X) %s", MemoryAddress, MemoryAddress + (MemorySize - 1), FileName.c_str());
     } else {
-        snprintf(StatusMsg, sizeof(StatusMsg), "Save Memory/Rom Unable to open file %s", FileName.c_str());
+        snprintf(StatusMsg, sizeof(StatusMsg), "Save Ram/Rom Unable to open file %s", FileName.c_str());
         Error = true;
     }
     PrintStatus(Error, StatusMsg);
