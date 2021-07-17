@@ -96,17 +96,22 @@ class MC_Hardware6502
         void				Create();
         void                PrintStatus(bool Error, std::string Msg);
 
+        void                CpuSetParameters();
+        void                CpuSetBreakPointOpCode(bool Enable, uint16_t Address);
+        void                CpuSetBreakPointMemory(bool Enable, uint16_t Address);
+        void				CpuSetPC(uint16_t PC);
+
+        void                CpuIRQ();
+        void                CpuNMI();
         void                CpuInitializeAndReset();
         void                CpuReset();
         void                CpuStop();
         void                CpuRun();
         void                CpuStep();
-        void                CpuSetParameters();
         void                CpuLoop();
-        void                CpuIRQ();
-        void                CpuNMI();
         void                CpuMemoryMapFullDump();
         void                CpuMemoryMapDump(uint16_t StartAddress, uint16_t EndAddress);
+
         uint8_t             CpuMemoryMapRead(uint16_t& address);
         void                CpuMemoryMapWrite(uint16_t& address, uint8_t& value);
 
@@ -119,10 +124,7 @@ class MC_Hardware6502
         uint16_t            Hex2Dec(std::string StrHex);
         void                PrintHexDump16Bit(const char* desc, void* addr, long len, long offset);
         bool                TestForBreakPointOpCode();
-        void                SetBreakPointOpCode(bool Enable, uint16_t Address);
         void                TestForBreakPointMemory(uint16_t& address, uint8_t& data, bool ReadWrite);
-        void                SetBreakPointMemory(bool Enable, uint16_t Address);
-        void				SetPC(uint16_t PC);
 
     private:
 

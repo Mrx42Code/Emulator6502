@@ -127,6 +127,84 @@ void MC_Hardware6502::PrintStatus(bool Error, std::string Msg)
     printf(")\r\n");
 }
 //-Public----------------------------------------------------------------------
+// Name: CpuSetParameters()
+//-----------------------------------------------------------------------------
+void MC_Hardware6502::CpuSetParameters()
+{
+    PrintStatus(false, "Cpu SetParameters");
+#if BreakPointMemory
+    CpuSetBreakPointMemory(true, 0x0046);
+#endif
+#if BreakPointOpCode
+    CpuSetBreakPointOpCode(true, 0x3469);                                            // if you get here everything went well 3469 : 4c6934 > jmp*; test passed, no errors
+#endif
+    CpuSetPC(0x0400);
+    m_Disassembler6502 = false;
+    m_Cpu6502Step = false;
+    m_Cpu6502Run = true;
+}
+//-Public----------------------------------------------------------------------
+// Name: SetBreakPointOpCode(bool Enable, uint16_t Address)
+//-----------------------------------------------------------------------------
+void MC_Hardware6502::CpuSetBreakPointOpCode(bool Enable, uint16_t Address)
+{
+    char buf[256];
+
+    m_BreakPointOpCode.SetFlag = Enable;
+    m_BreakPointOpCode.Address = Address;
+    m_BreakPointOpCode.Found = false;
+    if (m_BreakPointOpCode.SetFlag) {
+        snprintf(buf, sizeof(buf), "Cpu Set BreakPoint OpCode $%04X", Address);
+        PrintStatus(false, buf);
+    }
+}
+//-Public----------------------------------------------------------------------
+// Name: SetBreakPointMemory(bool Enable, uint16_t Address)
+//-----------------------------------------------------------------------------
+void MC_Hardware6502::CpuSetBreakPointMemory(bool Enable, uint16_t Address)
+{
+    char buf[256];
+
+    m_BreakPointMemory.SetFlag = Enable;
+    m_BreakPointMemory.Address = Address;
+    m_BreakPointMemory.Found = false;
+    if (m_BreakPointMemory.SetFlag) {
+        snprintf(buf, sizeof(buf), "Cpu Set BreakPoint Memory $%04X", Address);
+        PrintStatus(false, buf);
+    }
+}
+//-Public----------------------------------------------------------------------
+// Name: SetPC(uint16_t PC)
+//-----------------------------------------------------------------------------
+void MC_Hardware6502::CpuSetPC(uint16_t PC)
+{
+    char buf[256];
+
+    snprintf(buf, sizeof(buf), "Cpu Set PC $%04X", PC);
+    PrintStatus(false, buf);
+    mc_Processor6502.SetPC(0x0400);
+}
+//-Public----------------------------------------------------------------------
+// Name: CpuIRQ()
+//-----------------------------------------------------------------------------
+void MC_Hardware6502::CpuIRQ()
+{
+    if (m_Cpu6502Run) {
+        PrintStatus(false, "Cpu IRQ");
+        mc_Processor6502.IRQ();
+    }
+}
+//-Public----------------------------------------------------------------------
+// Name: CpuNMI()
+//-----------------------------------------------------------------------------
+void MC_Hardware6502::CpuNMI()
+{
+    if (m_Cpu6502Run) {
+        PrintStatus(false, "Cpu NMI");
+        mc_Processor6502.NMI();
+    }
+}
+//-Public----------------------------------------------------------------------
 // Name: CpuInitializeAndReset()
 //-----------------------------------------------------------------------------
 void MC_Hardware6502::CpuInitializeAndReset()
@@ -178,23 +256,6 @@ void MC_Hardware6502::CpuStep()
 {
     m_Cpu6502Run = false;
     m_Cpu6502Step = true;
-}
-//-Public----------------------------------------------------------------------
-// Name: CpuSetParameters()
-//-----------------------------------------------------------------------------
-void MC_Hardware6502::CpuSetParameters()
-{
-    PrintStatus(false, "Cpu SetParameters");
-#if BreakPointMemory
-    SetBreakPointMemory(true, 0x0046);
-#endif
-#if BreakPointOpCode
-    SetBreakPointOpCode(true, 0x3469);                                            // if you get here everything went well 3469 : 4c6934 > jmp*; test passed, no errors
-#endif
-    SetPC(0x0400);
-    m_Disassembler6502 = false;
-    m_Cpu6502Step = false;
-    m_Cpu6502Run = true;
 }
 //-Public----------------------------------------------------------------------
 // Name: CpuLoop()
@@ -260,26 +321,6 @@ void MC_Hardware6502::CpuLoop()
     CpuClk = double(TotalCycles / TotalTime) * 1000.0;
     snprintf(StatusMsg, sizeof(StatusMsg), "Cpu OpCounter = %lld CpuTotalCycles = %lld TotalTime = %lld ms Cpu Clk = %.6f Mhz", OpCounter, TotalCycles, TotalTime, CpuClk / 1000000.0);
     PrintStatus(false, StatusMsg);
-}
-//-Public----------------------------------------------------------------------
-// Name: CpuIRQ()
-//-----------------------------------------------------------------------------
-void MC_Hardware6502::CpuIRQ()
-{
-    if (m_Cpu6502Run) {
-        PrintStatus(false, "Cpu IRQ");
-        mc_Processor6502.IRQ();
-    }
-}
-//-Public----------------------------------------------------------------------
-// Name: CpuNMI()
-//-----------------------------------------------------------------------------
-void MC_Hardware6502::CpuNMI()
-{
-    if (m_Cpu6502Run) {
-        PrintStatus(false, "Cpu NMI");
-        mc_Processor6502.NMI();
-    }
 }
 //-Public----------------------------------------------------------------------
 // Name: CpuMemoryMapRead(uint16_t& address)
@@ -603,21 +644,6 @@ bool MC_Hardware6502::TestForBreakPointOpCode()
     return m_BreakPointOpCode.Found;
 }
 //-Protected-------------------------------------------------------------------
-// Name: SetBreakPointOpCode(bool Enable, uint16_t Address)
-//-----------------------------------------------------------------------------
-void MC_Hardware6502::SetBreakPointOpCode(bool Enable, uint16_t Address)
-{
-    char buf[256];
-
-    m_BreakPointOpCode.SetFlag = Enable;
-    m_BreakPointOpCode.Address = Address;
-    m_BreakPointOpCode.Found = false;
-    if (m_BreakPointOpCode.SetFlag) {
-        snprintf(buf, sizeof(buf), "Cpu Set BreakPoint OpCode $%04X", Address);
-        PrintStatus(false, buf);
-    }
-}
-//-Protected-------------------------------------------------------------------
 // Name: TestForBreakPointMemory(uint16_t& address, uint8_t& data, bool ReadWrite)
 //-----------------------------------------------------------------------------
 void MC_Hardware6502::TestForBreakPointMemory(uint16_t& address, uint8_t& data, bool ReadWrite)
@@ -634,30 +660,4 @@ void MC_Hardware6502::TestForBreakPointMemory(uint16_t& address, uint8_t& data, 
             PrintStatus(false, buf);
         }
     } 
-}
-//-Protected-------------------------------------------------------------------
-// Name: SetBreakPointMemory(bool Enable, uint16_t Address)
-//-----------------------------------------------------------------------------
-void MC_Hardware6502::SetBreakPointMemory(bool Enable, uint16_t Address)
-{
-    char buf[256];
-
-    m_BreakPointMemory.SetFlag = Enable;
-    m_BreakPointMemory.Address = Address;
-    m_BreakPointMemory.Found = false;
-    if (m_BreakPointMemory.SetFlag) {
-        snprintf(buf, sizeof(buf), "Cpu Set BreakPoint Memory $%04X", Address);
-        PrintStatus(false, buf);
-    }
-}
-//-Protected-------------------------------------------------------------------
-// Name: SetPC(uint16_t PC)
-//-----------------------------------------------------------------------------
-void MC_Hardware6502::SetPC(uint16_t PC)
-{
-    char buf[256];
-
-    snprintf(buf, sizeof(buf), "Cpu Set PC $%04X", PC);
-    PrintStatus(false, buf);
-    mc_Processor6502.SetPC(0x0400);
 }
