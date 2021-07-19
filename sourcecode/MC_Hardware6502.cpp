@@ -70,7 +70,6 @@ MC_Processor6502 mc_Processor6502(CpuMemoryRead, CpuMemoryWrite);
 //-----------------------------------------------------------------------------
 MC_Hardware6502::MC_Hardware6502()
 {
-    m_hConsole = nullptr;
     PrintStatus(false, "Console Create");
 }
 //-Public----------------------------------------------------------------------
@@ -105,26 +104,15 @@ void MC_Hardware6502::Create()
     m_Disassembler6502 = false;
 }
 //-Public----------------------------------------------------------------------
-// Name: Print(bool Error, std::string Msg)
+// Name: PrintStatus(bool Error, std::string Msg)
 //-----------------------------------------------------------------------------
 void MC_Hardware6502::PrintStatus(bool Error, std::string Msg)
 {
-    if (m_hConsole == nullptr) {
-        m_hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    }
     if (Error) {
-        SetConsoleTextAttribute(m_hConsole, FOREGROUND_RED | FOREGROUND_INTENSITY);
-        printf("[Error]");
+        printf("\u001b[31;1m[Error]\u001b[0m ( \u001b[33;1m%s\u001b[0m )\r\n", Msg.c_str());
     } else {
-        SetConsoleTextAttribute(m_hConsole, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-        printf("[ Ok  ]");
+        printf("\u001b[32;1m[ Ok  ]\u001b[0m ( \u001b[33;1m%s\u001b[0m )\r\n", Msg.c_str());
     }
-    SetConsoleTextAttribute(m_hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
-    printf(" (");
-    SetConsoleTextAttribute(m_hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY);
-    printf(" %s ", Msg.c_str());
-    SetConsoleTextAttribute(m_hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY);
-    printf(")\r\n");
 }
 //-Public----------------------------------------------------------------------
 // Name: CpuSetParameters()
@@ -258,9 +246,9 @@ void MC_Hardware6502::CpuStep()
     m_Cpu6502Step = true;
 }
 //-Public----------------------------------------------------------------------
-// Name: CpuLoop()
+// Name: CpuMainLoop()
 //-----------------------------------------------------------------------------
-void MC_Hardware6502::CpuLoop()
+void MC_Hardware6502::CpuMainLoop()
 {
     uint64_t OpCounter = 0;
     uint64_t TotalCycles = 0;
@@ -507,7 +495,7 @@ void MC_Hardware6502::MemoryLoadIntelFormat(uint16_t MemoryAddress, uint16_t Mem
     if (FileName.length() == 0) {
         return;
     }
-    ifstream file(FileName, ios::in || ios::ate);
+    ifstream file(FileName, ios::in | ios::ate);
     if (file.is_open()) {
         snprintf(StatusMsg, sizeof(StatusMsg), "Load Intel File Format %s", FileName.c_str());
         PrintStatus(false, StatusMsg);

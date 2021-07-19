@@ -48,10 +48,21 @@ extern MC_Hardware6502 mc_Hardware6502;
 //-----------------------------------------------------------------------------
 int main()
 {
+    HANDLE hConsole;
+    DWORD mode;
+
+    hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+    if (GetConsoleMode(hConsole, &mode)) {
+        if (!(mode & ENABLE_VIRTUAL_TERMINAL_PROCESSING)) {
+            mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+            SetConsoleMode(hConsole, mode);
+        }
+    }
     mc_Hardware6502.Initialize();
     mc_Hardware6502.Create();
     mc_Hardware6502.CpuSetParameters();
-    mc_Hardware6502.CpuLoop();
+    mc_Hardware6502.CpuMainLoop();
     mc_Hardware6502.Destroy();
     mc_Hardware6502.PrintStatus(false, "App Ends");
     return 0;

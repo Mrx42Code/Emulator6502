@@ -72,7 +72,6 @@ class MC_Hardware6502
 {
 
     public:
-        HANDLE              m_hConsole;
         bool                m_Quit;
         bool                m_Disassembler6502;
         bool                m_Cpu6502Run;
@@ -108,7 +107,7 @@ class MC_Hardware6502
         void                CpuStop();
         void                CpuRun();
         void                CpuStep();
-        void                CpuLoop();
+        void                CpuMainLoop();
         void                CpuMemoryMapFullDump();
         void                CpuMemoryMapDump(uint16_t StartAddress, uint16_t EndAddress);
 
